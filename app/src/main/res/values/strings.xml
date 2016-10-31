@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">helloworld</string>
+    <string name="strBtnIWantSomething">I want something</string>
+    <string name="strShowMeMap">Show me map</string>
+    <string name="strEditText">Hello world!</string>
+    <string name="title_activity_maps">Map</string>
+</resources>
