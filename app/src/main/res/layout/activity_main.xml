@@ -9,36 +9,44 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.hue.helloworld.MainActivity">
 
+    <fragment
+        android:id="@+id/place_autocomplete_fragment"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment" />
+
     <EditText android:id="@+id/edtText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="@string/strEditText" />
+        android:hint="@string/strEditText"
+        android:layout_marginTop="96dp"
+        android:layout_below="@+id/place_autocomplete_fragment"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/strBtnIWantSomething"
         android:id="@+id/btnIWantSomething"
-        android:layout_marginBottom="202dp"
         android:clickable="true"
         android:enabled="true"
         android:onClick="sendMessage"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        tools:onClick="sendMessage" />
+        tools:onClick="sendMessage"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
 
     <Button
         android:text="@string/strShowMeMap"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_alignLeft="@+id/btnIWantSomething"
-        android:layout_alignStart="@+id/btnIWantSomething"
-        android:layout_marginBottom="91dp"
         android:id="@+id/btnShowMeMap"
-        android:layout_alignRight="@+id/btnIWantSomething"
-        android:layout_alignEnd="@+id/btnIWantSomething"
         android:onClick="showMap"
         android:enabled="true"
-        tools:onClick="showMap" />
+        tools:onClick="showMap"
+        android:layout_alignBaseline="@+id/btnIWantSomething"
+        android:layout_alignBottom="@+id/btnIWantSomething"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
 </RelativeLayout>
