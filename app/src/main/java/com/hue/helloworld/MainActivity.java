@@ -2,6 +2,7 @@ package com.hue.helloworld;
 
 import android.content.Intent;
 import android.location.Location;
+import android.location.LocationManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
@@ -61,22 +62,33 @@ public class MainActivity extends AppCompatActivity implements PlaceSelectionLis
     }
 
     public void onSearchAddressClicked(View view) {
-        LatLngBounds mLatLngBounds = new LatLngBounds(new LatLng(37.398160, -122.180831),
-                new LatLng(37.430610, -121.972090)); // Mountain View, California
+        LatLng mLatLng = new LatLng(45.41117, -75.69812);;
+
+        // if we don't have a location then try to get an approximation from
+        // the network provider
         if (mLastLocation == null) {
-            Log.w(LOG_TAG, "onSearchAddressClicked: last location not known");
-            Toast.makeText(this, "Last location not known," +
-                    "cannot set place by default to Mountain View, California.",
-                    Toast.LENGTH_SHORT).show();
+            LocationManager locationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
+            mLastLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
+            if (mLastLocation == null) {
+                mLastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
+            }
+
+            if (mLastLocation == null) {
+                Log.w(LOG_TAG, "onSearchAddressClicked: last location not known");
+                Toast.makeText(this, "Last location not known," +
+                                "cannot set place by default to Ottawa, Ontario.",
+                        Toast.LENGTH_SHORT).show();
+            }
         }
-        else {
-            LatLng mLatLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-            mLatLngBounds = new LatLngBounds.Builder().
-                    include(SphericalUtil.computeOffset(mLatLng, 50, 0)).
-                    include(SphericalUtil.computeOffset(mLatLng, 50, 90)).
-                    include(SphericalUtil.computeOffset(mLatLng, 50, 180)).
-                    include(SphericalUtil.computeOffset(mLatLng, 50, 270)).build();
+
+        if (mLastLocation != null) {
+            mLatLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
         }
+        LatLngBounds mLatLngBounds = new LatLngBounds.Builder().
+                include(SphericalUtil.computeOffset(mLatLng, 20, 0)).
+                include(SphericalUtil.computeOffset(mLatLng, 20, 90)).
+                include(SphericalUtil.computeOffset(mLatLng, 20, 180)).
+                include(SphericalUtil.computeOffset(mLatLng, 20, 270)).build();
 
         try {
             Intent intent = new PlaceAutocomplete.IntentBuilder
@@ -149,7 +161,5 @@ public class MainActivity extends AppCompatActivity implements PlaceSelectionLis
     }
 
     @Override
-    public void onConnectionSuspended(int i) {
-
-    }
+    public void onConnectionSuspended(int i) { }
 }
