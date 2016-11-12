@@ -2,6 +2,7 @@
     <string name="app_name">helloworld</string>
     <string name="strBtnIWantSomething">I want something</string>
     <string name="strShowMeMap">Show me map</string>
-    <string name="strEditText">Hello world!</string>
+    <string name="strEditText">Enter your address here or click \'Search Address\'</string>
+    <string name="strBtnSearchAddress">Search address</string>
     <string name="title_activity_maps">Map</string>
 </resources>

@@ -9,20 +9,16 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.hue.helloworld.MainActivity">
 
-    <fragment
-        android:id="@+id/place_autocomplete_fragment"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:name="com.google.android.gms.location.places.ui.PlaceAutocompleteFragment" />
-
-    <EditText android:id="@+id/edtText"
+    <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:hint="@string/strEditText"
-        android:layout_marginTop="96dp"
-        android:layout_below="@+id/place_autocomplete_fragment"
+        android:text="@string/strBtnSearchAddress"
+        android:id="@+id/btnSearchAddr"
+        android:clickable="true"
+        android:enabled="true"
+        android:onClick="onSearchAddressClicked"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentStart="true"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -32,7 +28,6 @@
         android:clickable="true"
         android:enabled="true"
         android:onClick="sendMessage"
-        tools:onClick="sendMessage"
         android:layout_centerVertical="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
@@ -44,9 +39,17 @@
         android:id="@+id/btnShowMeMap"
         android:onClick="showMap"
         android:enabled="true"
-        tools:onClick="showMap"
         android:layout_alignBaseline="@+id/btnIWantSomething"
         android:layout_alignBottom="@+id/btnIWantSomething"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
+
+    <EditText android:id="@+id/edtText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:hint="@string/strEditText"
+        android:layout_below="@+id/btnSearchAddr"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="@dimen/place_autocomplete_button_padding" />
 </RelativeLayout>
