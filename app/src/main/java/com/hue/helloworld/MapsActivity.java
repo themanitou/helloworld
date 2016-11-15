@@ -27,7 +27,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         try {
             if (coder.isPresent()) {
-                address = coder.getFromLocationName(strAddress, 5);
+                address = coder.getFromLocationName(strAddress, 1);
                 if (address == null) {
                     return null;
                 }
@@ -72,21 +72,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.setMyLocationEnabled(true);
 
         Intent intent = getIntent();
-        String strAddress = intent.getStringExtra(MainActivity.EXTRA_MESSAGE);
-        String label;
-
-        // find the location at the given address
-        LatLng ll = getLocationFromAddress(this, strAddress);
-        if (ll == null) {
-            label = "Sydney";
-            ll = new LatLng(-34, 151);
+        String strAddress = intent.getStringExtra(MainActivity.EXTRA_MESSAGE_ADDRESS);
+        double latlng[] = intent.getDoubleArrayExtra(MainActivity.EXTRA_MESSAGE_LATLNG);
+        if (latlng.length != 2) {
+            return;
         }
-        else {
-            label = strAddress;
-        }
-
+        LatLng ll = new LatLng(latlng[0],latlng[1]);
         // Add a marker and move the camera
-        mMap.addMarker(new MarkerOptions().position(ll).title(label));
+        mMap.addMarker(new MarkerOptions().position(ll).title(strAddress));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(ll));
 
         // change zoom level

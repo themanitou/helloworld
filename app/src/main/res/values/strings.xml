@@ -5,4 +5,6 @@
     <string name="strEditText">Enter your address here or click \'Search Address\'</string>
     <string name="strBtnSearchAddress">Search address</string>
     <string name="title_activity_maps">Map</string>
+    <string name="title_activity_place_picker">PlacePickerActivity</string>
+    <string name="strBtnPlacePicker">Place Picker</string>
 </resources>

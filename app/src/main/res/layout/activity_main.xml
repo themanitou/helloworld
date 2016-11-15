@@ -52,4 +52,18 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_marginTop="@dimen/place_autocomplete_button_padding" />
+
+    <Button
+        android:text="@string/strBtnPlacePicker"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/btnShowMeMap"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginTop="16dp"
+        android:id="@+id/btnPlacePicker"
+        android:layout_alignRight="@+id/btnShowMeMap"
+        android:layout_alignEnd="@+id/btnShowMeMap"
+        android:enabled="true"
+        android:onClick="placePicker" />
 </RelativeLayout>

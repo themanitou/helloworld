@@ -20,7 +20,9 @@ import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListe
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.places.Place;
+import com.google.android.gms.location.places.Places;
 import com.google.android.gms.location.places.ui.PlaceAutocomplete;
+import com.google.android.gms.location.places.ui.PlacePicker;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
@@ -28,13 +30,16 @@ import com.google.maps.android.SphericalUtil;
 
 public class MainActivity extends AppCompatActivity implements PlaceSelectionListener,
         GoogleApiClient.ConnectionCallbacks,OnConnectionFailedListener {
-    public final static String EXTRA_MESSAGE = "com.hue.helloworld.MESSAGE";
+    public final static String EXTRA_MESSAGE_LATLNG = "com.hue.helloworld.MESSAGE.LATLNG";
+    public final static String EXTRA_MESSAGE_ADDRESS = "com.hue.helloworld.MESSAGE.ADDRESS";
     private static final String LOG_TAG = "PlaceSelectionListener";
     private static final int REQUEST_SELECT_PLACE = 1000;
+    private static final int REQUEST_PICKER_PLACE = 1001;
     private EditText edtText;
     private GoogleApiClient mGoogleApiClient;
     private Location mLastLocation;
     private Place mSelectedPlace;
+    private LatLngBounds mLatLngBounds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,6 +51,8 @@ public class MainActivity extends AppCompatActivity implements PlaceSelectionLis
                 .addConnectionCallbacks(this)
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
+                .addApi(Places.GEO_DATA_API)
+                .addApi(Places.PLACE_DETECTION_API)
                 .build();
     }
 
@@ -61,13 +68,21 @@ public class MainActivity extends AppCompatActivity implements PlaceSelectionLis
         super.onStop();
     }
 
-    public void onSearchAddressClicked(View view) {
-        LatLng mLatLng = new LatLng(45.41117, -75.69812);;
+    private void updateLastLocation() {
+        LatLng mLatLng;
+        if (mSelectedPlace != null) {
+            mLatLng = mSelectedPlace.getLatLng();
+            mLastLocation.setLatitude(mLatLng.latitude);
+            mLastLocation.setLongitude(mLatLng.longitude);
+        }
+        else {
+            mLatLng = new LatLng(45.41117, -75.69812);
+        }
 
         // if we don't have a location then try to get an approximation from
         // the network provider
         if (mLastLocation == null) {
-            LocationManager locationManager = (LocationManager) getSystemService(this.LOCATION_SERVICE);
+            LocationManager locationManager = (LocationManager) getSystemService(LOCATION_SERVICE);
             mLastLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
             if (mLastLocation == null) {
                 mLastLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -84,12 +99,15 @@ public class MainActivity extends AppCompatActivity implements PlaceSelectionLis
         if (mLastLocation != null) {
             mLatLng = new LatLng(mLastLocation.getLatitude(), mLastLocation.getLongitude());
         }
-        LatLngBounds mLatLngBounds = new LatLngBounds.Builder().
-                include(SphericalUtil.computeOffset(mLatLng, 20, 0)).
-                include(SphericalUtil.computeOffset(mLatLng, 20, 90)).
-                include(SphericalUtil.computeOffset(mLatLng, 20, 180)).
-                include(SphericalUtil.computeOffset(mLatLng, 20, 270)).build();
+        mLatLngBounds = new LatLngBounds.Builder().
+                include(SphericalUtil.computeOffset(mLatLng, 75, 0)).
+                include(SphericalUtil.computeOffset(mLatLng, 75, 90)).
+                include(SphericalUtil.computeOffset(mLatLng, 75, 180)).
+                include(SphericalUtil.computeOffset(mLatLng, 75, 270)).build();
+    }
 
+    public void onSearchAddressClicked(View view) {
+        updateLastLocation();
         try {
             Intent intent = new PlaceAutocomplete.IntentBuilder
                     (PlaceAutocomplete.MODE_OVERLAY)
@@ -127,6 +145,15 @@ public class MainActivity extends AppCompatActivity implements PlaceSelectionLis
                 this.onError(status);
             }
         }
+        else if (requestCode == REQUEST_PICKER_PLACE) {
+            if (resultCode == RESULT_OK) {
+                Place place = PlacePicker.getPlace(this, data);
+                this.onPlaceSelected(place);
+            } else if (resultCode == PlacePicker.RESULT_ERROR) {
+                Status status = PlacePicker.getStatus(this, data);
+                this.onError(status);
+            }
+        }
     }
 
     /* called when the button 'I want something' is clicked */
@@ -134,17 +161,20 @@ public class MainActivity extends AppCompatActivity implements PlaceSelectionLis
         Intent intent = new Intent(this, DisplayMessageActivity.class);
         EditText edtText = (EditText) findViewById(R.id.edtText);
         String message = edtText.getText().toString();
-        intent.putExtra(EXTRA_MESSAGE, message);
+        intent.putExtra(EXTRA_MESSAGE_ADDRESS, message);
         startActivity(intent);
     }
 
     /* called when the button 'Show me map' is clicked */
     public void showMap(View view) {
-        Intent intent = new Intent(this, MapsActivity.class);
-        EditText edtText = (EditText) findViewById(R.id.edtText);
-        String message = edtText.getText().toString();
-        intent.putExtra(EXTRA_MESSAGE, message);
-        startActivity(intent);
+        if (mSelectedPlace != null) {
+            Intent intent = new Intent(this, MapsActivity.class);
+            intent.putExtra(EXTRA_MESSAGE_LATLNG,
+                    new double[] { mSelectedPlace.getLatLng().latitude,
+                                   mSelectedPlace.getLatLng().longitude });
+            intent.putExtra(EXTRA_MESSAGE_ADDRESS, mSelectedPlace.getAddress());
+            startActivity(intent);
+        }
     }
 
     @Override
@@ -156,10 +186,25 @@ public class MainActivity extends AppCompatActivity implements PlaceSelectionLis
 
     @Override
     public void onConnected(@Nullable Bundle bundle) {
-        mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
-                mGoogleApiClient);
+        if (mSelectedPlace == null) {
+            mLastLocation = LocationServices.FusedLocationApi.getLastLocation(
+                    mGoogleApiClient);
+        }
     }
 
     @Override
     public void onConnectionSuspended(int i) { }
+
+    /* called when the button 'Place Picker' is clicked */
+    public void placePicker(View view) {
+        updateLastLocation();
+        try {
+            PlacePicker.IntentBuilder builder = new PlacePicker.IntentBuilder();
+            builder.setLatLngBounds(mLatLngBounds);
+            startActivityForResult(builder.build(this), REQUEST_PICKER_PLACE);
+        } catch (GooglePlayServicesRepairableException |
+                GooglePlayServicesNotAvailableException e) {
+            e.printStackTrace();
+        }
+    }
 }
