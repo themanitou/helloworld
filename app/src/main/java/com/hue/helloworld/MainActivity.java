@@ -167,14 +167,24 @@ public class MainActivity extends AppCompatActivity implements PlaceSelectionLis
 
     /* called when the button 'Show me map' is clicked */
     public void showMap(View view) {
-        if (mSelectedPlace != null) {
-            Intent intent = new Intent(this, MapsActivity.class);
-            intent.putExtra(EXTRA_MESSAGE_LATLNG,
-                    new double[] { mSelectedPlace.getLatLng().latitude,
-                                   mSelectedPlace.getLatLng().longitude });
-            intent.putExtra(EXTRA_MESSAGE_ADDRESS, mSelectedPlace.getAddress());
-            startActivity(intent);
+        double lat, lng;
+        String label;
+        if (mSelectedPlace == null) {
+            updateLastLocation();
+            lat = mLastLocation.getLatitude();
+            lng = mLastLocation.getLongitude();
+            label = "Current location";
         }
+        else {
+            lat = mSelectedPlace.getLatLng().latitude;
+            lng = mSelectedPlace.getLatLng().longitude;
+            label = mSelectedPlace.getAddress().toString();
+        }
+
+        Intent intent = new Intent(this, MapsActivity.class);
+        intent.putExtra(EXTRA_MESSAGE_LATLNG, new double[] { lat, lng });
+        intent.putExtra(EXTRA_MESSAGE_ADDRESS, label);
+        startActivity(intent);
     }
 
     @Override
